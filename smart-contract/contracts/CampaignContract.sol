@@ -24,7 +24,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
     event CampaignCreated(uint256 indexed campaignId, string topic, address creator);
     event VoteCast(uint256 indexed campaignId, string option, address voter);
     
-    function createCampaign(string memory _topic, string[] memory _options, uint256 _duration, Sign calldata sig) external {
+    function createCampaign(string calldata _topic, string[] calldata _options, uint256 _duration, Sign calldata sig) onlyVerifiedUser(sig) external {
         require(_duration > 0, "Invalid duration");
         uint campaignId = ++campaignCount;
         Campaign storage newCampaign = campaignsMapping[campaignId];
@@ -40,7 +40,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
         emit CampaignCreated(campaignId, _topic, _msgSender());
     }
     
-    function vote(uint256 _campaignId, string memory _option, Sign calldata sig) external {
+    function vote(uint256 _campaignId, string calldata _option, Sign calldata sig) onlyVerifiedUser(sig) external {
         require(_campaignId < campaignCount, "Invalid campaign ID");
         
         Campaign storage campaign = campaignsMapping[_campaignId];
@@ -64,7 +64,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
     }
     
     
-    function getVoteCount(uint256 _campaignId, string memory _option) external view returns (uint256) {
+    function getVoteCount(uint256 _campaignId, string calldata _option) external view returns (uint256) {
         require(_campaignId < campaignCount, "Invalid campaign ID");
         
         Campaign storage campaign = campaignsMapping[_campaignId];

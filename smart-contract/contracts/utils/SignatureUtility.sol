@@ -2,10 +2,10 @@
 pragma solidity 0.8.17;
 import "@openzeppelin/contracts/utils/Context.sol";
 
-
 contract SignatureUtility is Context {
     struct Sign {
         bytes signature;
+        uint eat;
         uint nonce;
     }
 
@@ -14,23 +14,23 @@ contract SignatureUtility is Context {
     /**
      * @dev Modifier to only allow an authorized signer to perform minting.
      * @dev This Signer may be different from the Owner.
-     * @param uri The URI associated with the minted token.
      * @param sig The signature provided by the signer for authorization.
      */
 
-    modifier onlyVerifiedUser(string calldata uri, Sign calldata sig) {
-        bytes32 messageHash = getMessageHash(_msgSender(), uri, sig.nonce);
+    modifier onlyVerifiedUser(Sign calldata sig) {
+        require(sig.eat > block.timestamp, "Signature Already Expired");
+        bytes32 messageHash = getMessageHash(_msgSender(), sig.eat, sig.nonce);
         bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
         require(
             recoverSigner(ethSignedMessageHash, sig.signature) == _signer,
-            "Unauthorised"
+            "Unauthorised Signer"
         );
         require(!_usedNonce[sig.nonce], "Invalid Signature");
         _;
     }
 
     /**
-     * @dev Sets the Signer address. 
+     * @dev Sets the Signer address.
      */
     constructor() {
         _signer = _msgSender();
@@ -72,15 +72,15 @@ contract SignatureUtility is Context {
 
     /**
      * @dev Computes the hash of a message.
-     * @param _message The message to hash.
+     * @param eat Expiring At Timestamp.
      * @return The hash of the message.
      */
     function getMessageHash(
         address addr,
-        string memory _message,
+        uint eat,
         uint nonce
     ) internal pure returns (bytes32) {
-        return keccak256(abi.encodePacked(addr, _message, nonce));
+        return keccak256(abi.encodePacked(addr, eat, nonce));
     }
 
     /**
@@ -109,13 +109,13 @@ contract SignatureUtility is Context {
      * @param _newSigner Address of the New Signer
      */
     function _setSigner(address _newSigner) internal virtual {
-      _signer = _newSigner;
+        _signer = _newSigner;
     }
 
     /**
      * @dev Getter for Signer. Fashioned after Openzeppelin's owner() method of Ownable contract.
      */
-    function signer() internal view returns(address) {
-      return _signer;
+    function signer() internal view returns (address) {
+        return _signer;
     }
 }

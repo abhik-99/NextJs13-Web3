@@ -1,14 +1,20 @@
 "use client";
-import React, { ReactNode } from "react";
+import React, { ButtonHTMLAttributes, ReactNode } from "react";
 
-type ButtonProps = {
+type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   children: ReactNode;
-  onClick?: React.MouseEventHandler<HTMLButtonElement>;
 };
 
-const BlueButtonClient = ({ children, onClick }: ButtonProps) => {
+const BlueButtonClient = ({
+  type = "submit",
+  disabled = false,
+  children,
+  onClick,
+}: ButtonProps) => {
   return (
     <button
+      type={type}
+      disabled={disabled}
       onClick={onClick}
       className="bg-blue-500 p-2 border-b-4 border-blue-700 rounded-full hover:bg-blue-800"
     >

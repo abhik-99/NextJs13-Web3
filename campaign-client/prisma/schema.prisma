@@ -14,9 +14,9 @@ model User {
   id               String     @id @default(auto()) @map("_id") @db.ObjectId
   name             String
   email            String     @unique
-  walletAddress    String
+  walletAddress    String     @unique
   hashedPassword   String
-  refreshToken     String     @db.String
+  refreshToken     String?    @db.String
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
   campaignsCreated Campaign[] @relation("Created")

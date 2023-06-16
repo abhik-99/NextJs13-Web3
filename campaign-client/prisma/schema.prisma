@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String     @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String     @unique
+  walletAddress    String
+  hashedPassword   String
+  refreshToken     String     @db.String
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  campaignsCreated Campaign[] @relation("Created")
+  campaignsVoted   Votes[]
+}
+
+model Campaign {
+  id                 String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  creator            User     @relation("Created", fields: [creatorId], references: [id])
+  creatorId          String   @db.ObjectId
+  contractCampaignId String
+  startTime          DateTime
+  endTime            DateTime
+  topic              String
+  options            String[]
+  votes              Votes[]
+}
+
+model Votes {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  campaign   Campaign @relation(fields: [campaignId], references: [id])
+  campaignId String   @db.ObjectId
+  option     String
+  voter      User     @relation(fields: [voterId], references: [id])
+  voterId    String   @db.ObjectId
+}

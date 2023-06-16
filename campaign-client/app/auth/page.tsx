@@ -11,6 +11,7 @@ const SignUpPage = () => {
     setSubmitting(false);
     console.log("Values", values);
   }
+  
   return (
     <main className="flex min-h-screen flex-col items-center justify-center">
       <div className="h-96 border-2 border-solid border-slate-600 p-10">

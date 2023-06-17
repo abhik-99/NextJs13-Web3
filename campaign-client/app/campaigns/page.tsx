@@ -3,10 +3,10 @@ import HorizontalCards from "../components/HorizontalCards";
 
 const CampaignsRootPage = () => {
   return (
-    <main>
+    <main className="flex flex-col items-center justify-evenly">
       <h1
         className="
-            mt-6 
+            my-24 
             text-center 
             text-5xl 
             font-bold 

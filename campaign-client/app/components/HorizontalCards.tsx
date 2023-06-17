@@ -12,7 +12,7 @@ const HorizontalCards = ({ img, alt, heading, body, link, reversed }: Horizontal
   return (
     <Link
       href={link}
-      className="flex flex-col items-center border rounded-lg shadow md:flex-row md:max-w-xl border-gray-500 bg-gray-900 hover:bg-gray-700"
+      className="flex flex-col items-center border rounded-lg shadow md:flex-row md:max-w-xl border-gray-500 bg-gray-900 hover:bg-gray-700 m-2"
     >
       {!reversed ? (
         <>

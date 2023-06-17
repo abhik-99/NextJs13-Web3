@@ -15,7 +15,7 @@ export default function CampaignsLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <div className="container mx-auto flex min-h-screen flex-col items-center justify-center">
+        <div className="container mx-auto min-h-screen">
           {children}
         </div>
       </body>

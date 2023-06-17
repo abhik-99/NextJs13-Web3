@@ -16,7 +16,7 @@ const BlueButtonClient = ({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className="bg-blue-500 p-2 border-b-4 border-blue-700 rounded-full hover:bg-blue-800"
+      className="bg-blue-500 p-2 border-b-4 border-blue-700 rounded-full hover:bg-blue-800 w-full"
     >
       {children}
     </button>

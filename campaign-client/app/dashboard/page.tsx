@@ -20,12 +20,12 @@ const UserDashboardPage = () => {
         />
         <main className="p-2 w-full md:w-4/5 lg:w-2/3 mt-16 rounded-md border border-gray-500">
           <div className="p-2 min-w-full bg-gray-700 rounded-md grid grid-cols-1 md:grid-cols-2">
-            <div className="w-full">
+            <div className="w-full ">
               <div className="flex items-center justify-between">
                 <h2 className="text-3xl font-bold tracking-tight text-gray-300">
                   Your <span className="text-cyan-200">Details</span>
                 </h2>
-                <button title="Feature Not implemented">
+                <button title="Feature Not implemented" className="p-1 border border-gray-300 rounded-lg">
                   <BiEditAlt />
                 </button>
               </div>
@@ -37,7 +37,7 @@ const UserDashboardPage = () => {
             </div>
             <div className="w-full flex flex-col items-center justify-evenly pt-5 md:pl-3 md:pt-2">
               <Link href="/dashboard/my-campaigns">
-                <StyledButtonClient color="yellow" >
+                <StyledButtonClient color="yellow">
                   My Campaigns
                 </StyledButtonClient>
               </Link>
@@ -47,7 +47,9 @@ const UserDashboardPage = () => {
                 </StyledButtonClient>
               </Link>
 
-              <StyledButtonClient>Your History</StyledButtonClient>
+              <StyledButtonClient title="Feature Not Implemented">
+                Your History
+              </StyledButtonClient>
             </div>
           </div>
         </main>

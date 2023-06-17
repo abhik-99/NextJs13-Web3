@@ -15,6 +15,7 @@ const StyledButtonClient = ({
   onClick,
   color = "blue",
   fullWidth = false,
+  ...otherProps
 }: ButtonProps) => {
   const colorClass =
     color === "blue"
@@ -34,6 +35,7 @@ const StyledButtonClient = ({
         fullWidth && "w-full",
         colorClass
       )}
+      {...otherProps}
     >
       {children}
     </button>

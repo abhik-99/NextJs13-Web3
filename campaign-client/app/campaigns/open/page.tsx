@@ -19,7 +19,10 @@ const OpenCampaignsPage = () => {
       <main className="mt-10 px-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
           <CampaignCards link={`/campaigns/${encodeURIComponent(i)}`}>
-            <h2>Campaign Topic</h2>
+            <h4 className="ml-6 text-2xl 
+            font-bold 
+            tracking-tight 
+            text-gray-400">Campaign Topic</h4>
             <p>Creator: Creator Address Here</p>
             <p>Created At: Time</p>
           </CampaignCards>

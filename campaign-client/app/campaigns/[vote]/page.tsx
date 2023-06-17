@@ -1,5 +1,5 @@
 "use client";
-import BlueButtonClient from "@/app/components/BlueButtonClient";
+import StyledButtonClient from "@/app/components/StyledButtonClient";
 import ProgressBarClient from "@/app/components/ProgressBarClient";
 import StyledRadioOptionClient from "@/app/components/StyledRadioClient";
 import { ErrorMessage, Form, Formik } from "formik";
@@ -97,9 +97,9 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
                       ))}
                     </div>
 
-                    <BlueButtonClient type="submit" disabled={isSubmitting}>
+                    <StyledButtonClient type="submit" disabled={isSubmitting}>
                       Submit
-                    </BlueButtonClient>
+                    </StyledButtonClient>
                     <ErrorMessage name="picked" component="div" className="mt-4"/>
                   </Form>
                 )}

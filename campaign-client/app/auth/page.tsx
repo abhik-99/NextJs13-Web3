@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import BlueButtonClient from "../components/BlueButtonClient";
+import StyledButtonClient from "../components/StyledButtonClient";
 import StyledInputClient from "../components/StyledInputClient";
 import { ErrorMessage, Form, Formik } from "formik";
 import {
@@ -10,7 +10,13 @@ import {
 } from "../components/TabsClient";
 import axios from "axios";
 
+import { useConnect } from "wagmi";
+import { InjectedConnector } from 'wagmi/connectors/injected'
+
 const SignUpPage = () => {
+  const { connect } = useConnect({
+    connector: new InjectedConnector(),
+  })
   const [connected, setConnected] = useState(false);
   const [value, setValue] = useState(0);
 
@@ -41,7 +47,7 @@ const SignUpPage = () => {
       >
         Connect to Your <span className="text-blue-400">Campaigners</span>
       </h1>
-      <div className="h-96  border-2 border-solid border-slate-600 p-10">
+      <div className="h-96 rounded-md border-2 border-solid border-slate-600 p-10">
         <TabsPanelClient>
           <TabClient
             value={value}
@@ -58,9 +64,9 @@ const SignUpPage = () => {
         </TabsPanelClient>
 
         <TabBodyClient value={value} index={0}>
-          <BlueButtonClient onClick={() => setConnected(true)}>
+          <StyledButtonClient onClick={() => setConnected(true)}>
             Connect Wallet
-          </BlueButtonClient>
+          </StyledButtonClient>
           <div className="my-6">
             <div className="relative">
               <div
@@ -115,18 +121,18 @@ const SignUpPage = () => {
                 />
                 <ErrorMessage name="password" component="div" />
 
-                <BlueButtonClient type="submit" disabled={isSubmitting}>
+                <StyledButtonClient type="submit" disabled={isSubmitting}>
                   Submit
-                </BlueButtonClient>
+                </StyledButtonClient>
               </Form>
             )}
           </Formik>
         </TabBodyClient>
         <TabBodyClient value={value} index={1}>
           {!connected && (
-            <BlueButtonClient onClick={() => setConnected((prev) => !prev)}>
+            <StyledButtonClient onClick={() => setConnected((prev) => !prev)}>
               Connect Wallet
-            </BlueButtonClient>
+            </StyledButtonClient>
           )}
           {connected && (
             <Formik
@@ -176,9 +182,9 @@ const SignUpPage = () => {
                   />
                   <ErrorMessage name="password" component="div" />
 
-                  <BlueButtonClient type="submit" disabled={isSubmitting}>
+                  <StyledButtonClient type="submit" disabled={isSubmitting}>
                     Submit
-                  </BlueButtonClient>
+                  </StyledButtonClient>
                 </Form>
               )}
             </Formik>

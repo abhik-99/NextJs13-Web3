@@ -21,7 +21,7 @@ type TabBodyClientProps = {
 export const TabsPanelClient = ({ children }: TabsPanelClientProps) => {
   return (
     <div className="mb-4 text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700">
-      <ul className="flex flex-wrap -mb-px">{children}</ul>
+      <ul className="flex flex-wrap -mb-px justify-center">{children}</ul>
     </div>
   );
 };

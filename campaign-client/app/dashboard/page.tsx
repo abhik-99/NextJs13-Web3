@@ -4,12 +4,16 @@ import StyledButtonClient from "../components/StyledButtonClient";
 
 import { BiEditAlt } from "react-icons/bi";
 import Link from "next/link";
+import { DrawerToggleButton } from "../components/StyledDrawer";
 const UserDashboardPage = () => {
   return (
     <div className="container mx-auto">
       <h1 className="my-10 text-center text-6xl font-bold tracking-tight text-gray-400">
         <span className="text-green-300">Your</span> Dashboard
       </h1>
+      <div className="pl-4">
+        <DrawerToggleButton />
+      </div>
       <div className="w-full flex flex-col items-center justify-center">
         <Image
           src="/homer-outline-invert.png"
@@ -25,7 +29,10 @@ const UserDashboardPage = () => {
                 <h2 className="text-3xl font-bold tracking-tight text-gray-300">
                   Your <span className="text-cyan-200">Details</span>
                 </h2>
-                <button title="Feature Not implemented" className="p-1 border border-gray-300 rounded-lg">
+                <button
+                  title="Feature Not implemented"
+                  className="p-1 border border-gray-300 rounded-lg"
+                >
                   <BiEditAlt />
                 </button>
               </div>

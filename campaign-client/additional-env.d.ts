@@ -5,6 +5,9 @@ declare global {
       NEXTAUTH_SECRET: string;
       DATABASE_URL: string;
       ALCHEMY_API: string;
+      OWNER_PRIV_KEY: string;
+      NEXT_PUBLIC_SIGNUP_MESSAGE: string;
+      NEXT_PUBLIC_LOGIN_MESSAGE: string;
     }
   }
 }

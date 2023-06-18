@@ -11,16 +11,36 @@ datasource db {
 }
 
 model User {
-  id               String     @id @default(auto()) @map("_id") @db.ObjectId
-  name             String
-  email            String     @unique
-  walletAddress    String     @unique
-  hashedPassword   String
-  refreshToken     String?    @db.String
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  campaignsCreated Campaign[] @relation("Created")
-  campaignsVoted   Votes[]
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  name                String
+  email               String     @unique
+  walletAddress       String     @unique
+  hashedPassword      String
+  signedSignupMessage String
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+  campaignsCreated    Campaign[] @relation("Created")
+  campaignsVoted      Votes[]
+  Account             Account[]
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
 
 model Campaign {

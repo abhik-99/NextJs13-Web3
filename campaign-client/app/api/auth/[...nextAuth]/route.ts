@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 import prisma from "@/app/libs/prismaDb";
-import { recoverAddress } from "ethers";
+import { ethers } from "ethers";
 
 export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
@@ -65,7 +65,7 @@ export const authOptions: AuthOptions = {
           if (!user) {
             throw new Error("Invalid credentials");
           }
-          const signer = recoverAddress(credentials.message, credentials.signedMessage)
+          const signer = ethers.utils.verifyMessage(credentials.message, credentials.signedMessage)
 
           if (signer !== credentials.walletAddress) {
             throw new Error("Invalid Signature");

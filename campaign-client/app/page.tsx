@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DrawerToggleButton } from "./components/StyledDrawer";
 
 export default function HomePage() {
   return (
@@ -7,6 +8,7 @@ export default function HomePage() {
       <div className="flex items-center justify-center p-20">
       <button className="mr-4"><Link href="/campaigns">View Campaigns</Link></button>
       <button><Link href="/auth">Get Started</Link></button>
+      <DrawerToggleButton />
       </div>
       
     </main>

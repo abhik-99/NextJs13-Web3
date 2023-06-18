@@ -33,7 +33,8 @@ const StyledButtonClient = ({
       className={cx(
         "py-2 px-4 border-b-4 rounded-full",
         fullWidth && "w-full",
-        colorClass
+        colorClass,
+        disabled && "opacity-60"
       )}
       {...otherProps}
     >

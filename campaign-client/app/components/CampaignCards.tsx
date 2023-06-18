@@ -10,7 +10,6 @@ type CampaignCardsProps = {
 }
 
 const CampaignCards = ({link, reverseGradient, children}: CampaignCardsProps) => {
-  console.log("Link Received", link)
   return (
     <Link href={link} className="flex items-center justify-center">
       <div className="h-48 w-80 relative group">

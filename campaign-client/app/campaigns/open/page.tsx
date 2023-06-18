@@ -1,4 +1,5 @@
 import CampaignCards from "@/app/components/CampaignCards";
+import Link from "next/link";
 import React from "react";
 
 const OpenCampaignsPage = () => {
@@ -16,6 +17,11 @@ const OpenCampaignsPage = () => {
       >
         <span className="text-cyan-200">Open</span> Campaigns
       </h1>
+      <nav className="m-2 text-gray-400 hover:text-gray-200">
+        <Link href="/campaigns">
+          <p>{`<`} Back to All Campaigns</p>
+        </Link>
+      </nav>
       <main className="mt-10 px-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
           <CampaignCards link={`/campaigns/${encodeURIComponent(i)}`}>

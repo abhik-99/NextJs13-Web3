@@ -22,7 +22,7 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
         Campaign
       </h1>
       <nav className="m-2 text-gray-400 hover:text-gray-200">
-        <Link href="/campaigns/open">
+        <Link href="/campaigns">
           <p>{`<`} Back to All Campaigns</p>
         </Link>
       </nav>

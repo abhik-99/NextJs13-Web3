@@ -13,30 +13,67 @@ import axios from "axios";
 import { useAccount, useConnect, useSignMessage } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { toast } from "react-hot-toast";
+import { signIn } from "next-auth/react";
 
 const SignUpPage = () => {
-  const [signUpSuccess, setSignUpSuccess] = useState(false)
+  const [signUpSuccess, setSignUpSuccess] = useState(false);
   const { address: account, isConnected } = useAccount();
   const {
     data: signedSignupMessage,
-    isError,
-    isLoading,
     isSuccess: hasSignedSuccessfully,
     signMessage: signSignUpMessage,
   } = useSignMessage({
     message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
   });
-  const { connect } = useConnect({
+
+  const {
+    data: signedLoginMessage,
+    isSuccess: hasSignedLoginSuccessfully,
+    signMessageAsync: signLoginMessage,
+  } = useSignMessage({
+    message: process.env.NEXT_PUBLIC_LOGIN_MESSAGE,
+  });
+
+  const { connectAsync } = useConnect({
     connector: new InjectedConnector(),
   });
   const [value, setValue] = useState(0);
 
-  const handleWeb3Login = () => {
-    connect();
+  const handleConnectWalletLogin = () => {
+    connectAsync()
+      .then(() => {
+        toast.loading("Please sign the message to continue", {
+          duration: 6000,
+        });
+      })
+      .catch(() => toast.error("Something went wrong while connecting wallet"));
   };
 
-  const handleWeb3Signup = () => {
-    connect();
+  const handleWeb3Login = async () => {
+
+    signLoginMessage().then(() => {
+      signIn("credentials", {
+        type: "web3",
+        walletAddress: account,
+        signedMessage: signedLoginMessage,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          toast.error("Incorrect Wallet Credentials");
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Web3 Login Successful");
+        }
+      });
+    });
+  };
+
+  const handleWeb3Signup = async () => {
+    connectAsync().then(() => {
+      toast.loading("Please sign the message to continue", { duration: 6000 });
+      signSignUpMessage();
+    });
   };
 
   const handleSubmit = (values: any, { setSubmitting }: any, type: string) => {
@@ -47,17 +84,36 @@ const SignUpPage = () => {
       message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
       signedSignupMessage,
     });
+
     if (type === "SIGNUP" && hasSignedSuccessfully) {
-      axios.post("/api/signup",{
-        ...values,
-        walletAddress: account,
-        message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
-        signedSignupMessage,
-      })
-      .then(() => {setSignUpSuccess(true); toast.success("Signup success, Login")})
-      .catch(() => toast.error("Something went wrong!"));
+      axios
+        .post("/api/signup", {
+          ...values,
+          walletAddress: account,
+          message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
+          signedSignupMessage,
+        })
+        .then(() => {
+          setSignUpSuccess(true);
+          toast.success("Signup success, Login");
+        })
+        .catch(() => toast.error("Something went wrong!"));
     }
     if (type === "LOGIN") {
+      signIn("credentials", {
+        type: "web2",
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          toast.error("Incorrect Credentials");
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Web2 Login Successful");
+        }
+      });
     }
   };
 
@@ -83,9 +139,20 @@ const SignUpPage = () => {
         </TabsPanelClient>
 
         <TabBodyClient value={value} index={0}>
-          <StyledButtonClient onClick={handleWeb3Login} fullWidth>
-            Connect Wallet
-          </StyledButtonClient>
+          {!isConnected && (
+            <StyledButtonClient onClick={handleConnectWalletLogin} fullWidth>
+              Connect Wallet
+            </StyledButtonClient>
+          )}
+          {isConnected && (
+            <StyledButtonClient
+              onClick={handleWeb3Login}
+              fullWidth
+              color="yellow"
+            >
+              Sign Message to Login
+            </StyledButtonClient>
+          )}
           <div className="my-6">
             <div className="relative">
               <div
@@ -154,7 +221,10 @@ const SignUpPage = () => {
         <TabBodyClient value={value} index={1}>
           {!isConnected && (
             <>
-              <StyledButtonClient onClick={handleWeb3Signup} disabled={signUpSuccess}>
+              <StyledButtonClient
+                onClick={handleWeb3Signup}
+                disabled={signUpSuccess}
+              >
                 Connect Wallet
               </StyledButtonClient>
             </>
@@ -171,14 +241,6 @@ const SignUpPage = () => {
                   account?.length
                 )}`}</span>
               </h2>
-              <div className="flex justify-center mb-4">
-                <StyledButtonClient
-                  color="green"
-                  onClick={() => signSignUpMessage()}
-                >
-                  Sign Message
-                </StyledButtonClient>
-              </div>
               <Formik
                 initialValues={{ name: "", email: "", password: "" }}
                 onSubmit={(values, formikHelpers) =>
@@ -228,7 +290,11 @@ const SignUpPage = () => {
                       <span className="my-3" />
                       <StyledButtonClient
                         type="submit"
-                        disabled={isSubmitting || !hasSignedSuccessfully || signUpSuccess}
+                        disabled={
+                          isSubmitting ||
+                          !hasSignedSuccessfully ||
+                          signUpSuccess
+                        }
                         fullWidth
                       >
                         Submit

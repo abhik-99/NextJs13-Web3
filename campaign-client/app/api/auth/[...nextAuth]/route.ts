@@ -62,10 +62,12 @@ export const authOptions: AuthOptions = {
             },
           });
 
+          
+
           if (!user) {
             throw new Error("Invalid credentials");
           }
-          const signer = ethers.utils.verifyMessage(credentials.message, credentials.signedMessage)
+          const signer = ethers.utils.verifyMessage(process.env.NEXT_PUBLIC_LOGIN_MESSAGE, credentials.signedMessage)
 
           if (signer !== credentials.walletAddress) {
             throw new Error("Invalid Signature");

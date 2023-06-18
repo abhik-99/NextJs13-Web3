@@ -24,7 +24,7 @@ const PastCampaignsPage = () => {
       </nav>
       <main className="mt-10 px-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-          <CampaignCards link={`/campaigns/${encodeURIComponent(i)}`} reverseGradient />
+          <CampaignCards link={`/campaigns/campaign/${encodeURIComponent(i)}`} reverseGradient />
         ))}
       </main>
     </main>

@@ -24,7 +24,7 @@ const OpenCampaignsPage = () => {
       </nav>
       <main className="mt-10 px-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-          <CampaignCards link={`/campaigns/${encodeURIComponent(i)}`}>
+          <CampaignCards link={`/campaigns/campaign/${encodeURIComponent(i)}`}>
             <h4 className="ml-6 text-2xl 
             font-bold 
             tracking-tight 

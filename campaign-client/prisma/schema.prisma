@@ -67,3 +67,8 @@ model Votes {
   voter      User     @relation(fields: [voterId], references: [id])
   voterId    String   @db.ObjectId
 }
+
+model Nonce {
+  id    String @id @default(auto()) @map("_id") @db.ObjectId
+  value Int
+}

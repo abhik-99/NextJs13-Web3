@@ -1,3 +1,7 @@
+"use client";
+import { WagmiConfig } from "wagmi";
+import { StyledDrawer } from "../components/StyledDrawer";
+import { config } from "../libs/wagmi";
 
 export const metadata = {
   title: "Campaigns - Sadda Web3 Haq",
@@ -9,5 +13,11 @@ export default function CampaignsLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <div className="container mx-auto min-h-screen">{children}</div>;
+  return (
+    <WagmiConfig config={config}>
+      <StyledDrawer>
+        <div className="container mx-auto min-h-screen">{children}</div>
+      </StyledDrawer>
+    </WagmiConfig>
+  );
 }

@@ -2,12 +2,26 @@
 import React from "react";
 import StyledButtonClient from "@/app/components/StyledButtonClient";
 import StyledInputClient from "@/app/components/StyledInputClient";
-import TimePickerClient from "@/app/components/TimePickerClient";
 import DatePickerClient from "@/app/components/DatePickerClient";
-import { Form, Formik } from "formik";
+import { Form, Formik, FormikValues } from "formik";
 import Link from "next/link";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const CreateNewCampaignPage = () => {
+  const handleCampaignCreation = (
+    values: FormikValues,
+    { setSubmitting }: any
+  ) => {
+    console.log("Values to use for campaign creation", {
+      ...values,
+      startDate: values.startDate.valueOf().toString(),
+      endDate: values.startDate.valueOf().toString(),
+    });
+    axios.post("/api/create-campaign", values)
+    .catch(() => toast.error("Something went wrong!"));
+    setSubmitting(false);
+  };
   return (
     <div className="flex flex-col items-center justify-center">
       <h1 className="my-10 text-5xl font-bold tracking-tight text-gray-400">
@@ -21,18 +35,10 @@ const CreateNewCampaignPage = () => {
             option2: "",
             option3: "",
             option4: "",
-            startTimeHour: "03",
-            startTimeMinute: "00",
-            startTimeHalf: "AM",
-            endTimeHour: "02",
-            endTimeMinute: "00",
-            endTimeHalf: "AM",
             startDate: new Date(),
             endDate: new Date(),
           }}
-          onSubmit={(values, formikHelpers) => {
-            console.log("Campaign to be created with values", values);
-          }}
+          onSubmit={handleCampaignCreation}
           validate={(values) => {
             const errors: any = {};
 
@@ -51,21 +57,19 @@ const CreateNewCampaignPage = () => {
             if (!values.option4) {
               errors.option4 = "*Required";
             }
-            if (
-              !values.startTimeHour ||
-              !values.startTimeMinute ||
-              !values.startTimeHalf
-            ) {
-              errors.startTime = "*Required";
-              console.log("this");
+            if (values.startDate.valueOf() < Date.now().valueOf()) {
+              errors.startDate = "Campaign must start in the future";
             }
             if (
-              !values.endTimeHour ||
-              !values.endTimeMinute ||
-              !values.endTimeHalf
+              values.startDate.toUTCString() === values.endDate.toUTCString()
             ) {
-              errors.endTime = "*Required";
-              console.log("this2");
+              errors.endDate = "End Date cannot be same as Start Date";
+            }
+            if (
+              values.endDate.valueOf() <
+              values.startDate.valueOf() + 2 * 24 * 60 * 60 * 1000
+            ) {
+              errors.endDate = "Campaign should take 2 days min";
             }
             return errors;
           }}
@@ -121,22 +125,25 @@ const CreateNewCampaignPage = () => {
               <h2 className="text-lg font-bold tracking-tight text-gray-200 mt-6">
                 Timings:
               </h2>
+              <span className="text-xs  text-gray-300">
+                pzzt... Revolutions always begin and end at mid-night
+              </span>
               <div className="my-2 py-2 border-t-2 border-gray-600">
                 <DatePickerClient
+                  name="startDate"
                   label="Start Date: "
                   selected={values.startDate}
                   onChange={(date: any) => setFieldValue("startDate", date)}
                 />
-                <TimePickerClient name="startTime" label="Start Time: " />
               </div>
               <hr className="border-gray-500" />
               <div className="mt-1 mb-5 py-2 border-b-2 border-gray-600">
                 <DatePickerClient
+                  name="endDate"
                   label="End Date: "
                   selected={values.endDate}
                   onChange={(date: any) => setFieldValue("endDate", date)}
                 />
-                <TimePickerClient name="endTime" label="End Time: " />
               </div>
 
               <StyledButtonClient

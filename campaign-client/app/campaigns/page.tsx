@@ -7,7 +7,7 @@ const CampaignsRootPage = () => {
     <>
       <h1
         className="
-            my-10 
+            py-10 
             text-center 
             text-6xl 
             font-bold 

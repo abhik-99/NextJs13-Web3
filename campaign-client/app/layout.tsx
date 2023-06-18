@@ -1,10 +1,10 @@
-import {StyledDrawer} from "./components/StyledDrawer";
 import AuthContext from "./context/AuthContext";
 import { DrawerContextProvider } from "./context/DrawerContext";
 import ToasterContext from "./context/ToasterContext";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import cx from "classnames";
+import WagmiContext from "./context/WagmiContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -21,12 +21,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={cx(inter.className, "min-h-screen")}>
-        <AuthContext>
-          <ToasterContext />
-          <DrawerContextProvider>
-            <StyledDrawer>{children}</StyledDrawer>
-          </DrawerContextProvider>
-        </AuthContext>
+        <WagmiContext>
+          <AuthContext>
+            <ToasterContext />
+            <DrawerContextProvider>{children}</DrawerContextProvider>
+          </AuthContext>
+        </WagmiContext>
       </body>
     </html>
   );

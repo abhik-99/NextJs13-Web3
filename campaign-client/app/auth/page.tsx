@@ -13,9 +13,12 @@ import axios from "axios";
 import { useAccount, useConnect, useSignMessage } from "wagmi";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { toast } from "react-hot-toast";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const SignUpPage = () => {
+  const session = useSession();
+  const router = useRouter();
   const [signUpSuccess, setSignUpSuccess] = useState(false);
   const { address: account, isConnected } = useAccount();
   const {
@@ -38,6 +41,12 @@ const SignUpPage = () => {
     connector: new InjectedConnector(),
   });
   const [value, setValue] = useState(0);
+
+  React.useEffect(() => {
+    if(session?.status === "authenticated") {
+      router.push("/dashboard")
+    }
+  }, [session?.status])
 
   const handleConnectWalletLogin = () => {
     connectAsync()
@@ -64,6 +73,7 @@ const SignUpPage = () => {
 
         if (callback?.ok && !callback?.error) {
           toast.success("Web3 Login Successful");
+          router.push("/dashboard")
         }
       });
     });
@@ -96,6 +106,11 @@ const SignUpPage = () => {
         .then(() => {
           setSignUpSuccess(true);
           toast.success("Signup success, Login");
+          signIn("credentials", {
+            type: "web2",
+            email: values.email,
+            password: values.password
+          })
         })
         .catch(() => toast.error("Something went wrong!"));
     }
@@ -112,6 +127,7 @@ const SignUpPage = () => {
 
         if (callback?.ok && !callback?.error) {
           toast.success("Web2 Login Successful");
+          router.push("/dashboard")
         }
       });
     }
@@ -201,14 +217,12 @@ const SignUpPage = () => {
                     name="email"
                     placeholder="Enter email address"
                   />
-                  <ErrorMessage name="email" component="div" />
 
                   <StyledInputClient
                     type="password"
                     name="password"
                     placeholder="And password here..."
                   />
-                  <ErrorMessage name="password" component="div" />
                   <span className="my-2" />
                   <StyledButtonClient type="submit" disabled={isSubmitting}>
                     Submit

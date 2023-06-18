@@ -5,9 +5,14 @@ import StyledRadioOptionClient from "@/app/components/StyledRadioClient";
 import { ErrorMessage, Form, Formik } from "formik";
 import Link from "next/link";
 import React from "react";
+import { useRouter } from "next/navigation";
 
 const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
+  const router = useRouter();
   const [submitted, setSubmitted] = React.useState(false);
+  const handlePrev = () => {
+    router.back()
+  }
   return (
     <div>
       <h1
@@ -22,9 +27,9 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
         Campaign
       </h1>
       <nav className="m-2 text-gray-400 hover:text-gray-200">
-        <Link href="/campaigns">
-          <p>{`<`} Back to All Campaigns</p>
-        </Link>
+        <button onClick={handlePrev}>
+          <p>{`<`} Back to Campaigns</p>
+        </button>
       </nav>
       <main className="m-2 min-w-full border border-gray-500 rounded-lg">
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">

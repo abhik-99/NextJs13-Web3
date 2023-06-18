@@ -1,10 +1,5 @@
-"use client";
-import { WagmiConfig } from "wagmi";
-import { config } from "../libs/wagmi";
-
-
 export const metadata = {
-  title: "Login/Signup",
+  title: "Login/Signup - Sadda Web3 Haq",
   description: "Get Started with your Campaigns",
 };
 
@@ -13,5 +8,5 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return <WagmiConfig config={config}>{children}</WagmiConfig>;
+  return <>{children}</>;
 }

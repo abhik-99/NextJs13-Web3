@@ -15,6 +15,7 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { toast } from "react-hot-toast";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { polygonMumbai } from "viem/chains";
 
 const SignUpPage = () => {
   const session = useSession();
@@ -32,52 +33,58 @@ const SignUpPage = () => {
   const {
     data: signedLoginMessage,
     isSuccess: hasSignedLoginSuccessfully,
-    signMessageAsync: signLoginMessage,
+    signMessage: signLoginMessage,
   } = useSignMessage({
     message: process.env.NEXT_PUBLIC_LOGIN_MESSAGE,
   });
 
-  const { connectAsync } = useConnect({
-    connector: new InjectedConnector(),
+  const { connect, connectAsync } = useConnect({
+    connector: new InjectedConnector({
+      chains: [polygonMumbai],
+    }),
   });
   const [value, setValue] = useState(0);
 
   React.useEffect(() => {
-    if(session?.status === "authenticated") {
-      router.push("/dashboard")
+    if (session?.status === "authenticated") {
+      router.push("/dashboard");
     }
-  }, [session?.status])
+  }, [session?.status]);
 
   const handleConnectWalletLogin = () => {
-    connectAsync()
-      .then(() => {
-        toast.loading("Please sign the message to continue", {
-          duration: 6000,
-        });
-      })
-      .catch(() => toast.error("Something went wrong while connecting wallet"));
-  };
-
-  const handleWeb3Login = async () => {
-
-    signLoginMessage().then(() => {
-      signIn("credentials", {
-        type: "web3",
-        walletAddress: account,
-        signedMessage: signedLoginMessage,
-        redirect: false,
-      }).then((callback) => {
-        if (callback?.error) {
-          toast.error("Incorrect Wallet Credentials");
-        }
-
-        if (callback?.ok && !callback?.error) {
-          toast.success("Web3 Login Successful");
-          router.push("/dashboard")
-        }
+    try {
+      connect();
+      toast.loading("Please sign the message to continue", {
+        duration: 6000,
       });
-    });
+    } catch (error) {
+      console.log("Error occurec", error);
+      toast.error("Something went wrong while connecting wallet");
+    }
   };
+
+  const handleWeb3Login = () => {
+    signLoginMessage();
+  };
+
+  React.useEffect(() => {
+    signIn("credentials", {
+      type: "web3",
+      walletAddress: account,
+      signedMessage: signedLoginMessage,
+      redirect: false,
+    }).then((callback) => {
+      if (callback?.error) {
+        console.log("Callback error", callback.error);
+        toast.error("Incorrect Wallet Credentials");
+      }
+
+      if (callback?.ok && !callback?.error) {
+        toast.success("Web3 Login Successful");
+        router.push("/dashboard");
+      }
+    });
+  }, [hasSignedLoginSuccessfully]);
 
   const handleWeb3Signup = async () => {
     connectAsync().then(() => {
@@ -109,8 +116,8 @@ const SignUpPage = () => {
           signIn("credentials", {
             type: "web2",
             email: values.email,
-            password: values.password
-          })
+            password: values.password,
+          });
         })
         .catch(() => toast.error("Something went wrong!"));
     }
@@ -127,7 +134,7 @@ const SignUpPage = () => {
 
         if (callback?.ok && !callback?.error) {
           toast.success("Web2 Login Successful");
-          router.push("/dashboard")
+          router.push("/dashboard");
         }
       });
     }

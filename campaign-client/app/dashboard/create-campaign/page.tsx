@@ -7,19 +7,54 @@ import { Form, Formik, FormikValues } from "formik";
 import Link from "next/link";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { writeContract } from "@wagmi/core";
+
+import contractAbi from "@/app/blockchain/contract_abi.json";
+import { polygonMumbai } from "viem/chains";
+import { useAccount } from "wagmi";
 
 const CreateNewCampaignPage = () => {
-  const handleCampaignCreation = (
+  const { address, isConnected } = useAccount();
+  console.log("Address and connection?", address, isConnected);
+  const handleCampaignCreation = async (
     values: FormikValues,
     { setSubmitting }: any
   ) => {
-    console.log("Values to use for campaign creation", {
-      ...values,
-      startDate: values.startDate.valueOf().toString(),
-      endDate: values.startDate.valueOf().toString(),
-    });
-    axios.post("/api/create-campaign", values)
-    .catch(() => toast.error("Something went wrong!"));
+    try {
+      const {
+        data: { signedMessage, eat, nonce },
+      } = await axios.post("/api/create-campaign", {
+        ...values,
+        startDate: values.startDate.valueOf() / 1000,
+        endDate: values.startDate.valueOf() / 1000,
+      });
+      console.log("Values to use for campaign creation", [
+        values.topic,
+        [values.option1, values.option2, values.option3, values.option4],
+        values.startDate.valueOf() / 1000,
+        values.endDate.valueOf() / 1000,
+        { signature: signedMessage, eat: eat, nonce: nonce },
+      ]);
+
+      const { hash } = await writeContract({
+        address: `0x${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`,
+        abi: contractAbi,
+        functionName: "createCampaign",
+        args: [
+          values.topic,
+          [values.option1, values.option2, values.option3, values.option4],
+          values.startDate.valueOf() / 1000,
+          values.endDate.valueOf() / 1000,
+          { signature: signedMessage, eat: eat, nonce: nonce },
+        ],
+        chainId: polygonMumbai.id,
+      });
+      console.log("Hash of the transaction", hash);
+    } catch (error) {
+      console.log("Error occured", error);
+      toast.error("Something went wrong!");
+    }
+
     setSubmitting(false);
   };
   return (

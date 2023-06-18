@@ -2,14 +2,14 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
 import prisma from "@/app/libs/prismaDb";
-import axios from "axios";
 import { ethers } from "ethers";
 
-export async function POST(req: Request) {
+import contractAbi from "@/app/blockchain/contract_abi.json";
 
+export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
 
-  if(!session?.user) {
+  if (!session?.user) {
     throw new Error("Unauthorised");
   }
   const user = await prisma.user.findUnique({
@@ -20,21 +20,31 @@ export async function POST(req: Request) {
 
   const nonce = await prisma?.nonce.update({
     where: { id: process.env.NONCE_DOC_ID },
-    data: { value: { increment: 1 } }
+    data: { value: { increment: 1 } },
   });
 
   const ownerWallet = new ethers.Wallet(process.env.OWNER_PRIV_KEY);
+  const eat = Math.trunc((Date.now().valueOf()/1000) + 60 * 60 * 100)
+  console.log("EAT", eat);
 
   const hash = ethers.utils.solidityKeccak256(
     ["address", "uint", "uint"],
-    [user?.walletAddress, Date.now().valueOf() + 60*60*100,nonce?.value]
+    [user?.walletAddress, eat, nonce?.value]
   );
 
   const byteHash = ethers.utils.arrayify(hash);
-  const signedMessage = ownerWallet.signMessage(byteHash)
+  const signedMessage = await ownerWallet.signMessage(byteHash);
 
   const body = await req.json();
   const { topic, option1, option2, option3, option4, startDate, endDate } =
     body;
-  return NextResponse.json({ message: "hit" });
+  // const campaignContract = new ethers.Contract(
+  //   process.env.DEPLOYED_CONTRACT_ADDRESS,
+  //   contractAbi,
+  // );
+  return NextResponse.json({
+    signedMessage,
+    eat,
+    nonce: nonce.value,
+  });
 }

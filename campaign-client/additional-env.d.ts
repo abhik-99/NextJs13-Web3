@@ -7,8 +7,10 @@ declare global {
       ALCHEMY_API: string;
       OWNER_PRIV_KEY: string;
       NONCE_DOC_ID: string;
+      DEPLOYED_CONTRACT_ADDRESS: string;
       NEXT_PUBLIC_SIGNUP_MESSAGE: string;
       NEXT_PUBLIC_LOGIN_MESSAGE: string;
+      NEXT_PUBLIC_CONTRACT_ADDRESS: string;
     }
   }
 }

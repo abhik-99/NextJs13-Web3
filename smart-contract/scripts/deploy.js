@@ -11,10 +11,10 @@ async function main() {
   const votingCampaign = await VotingCampaign.deploy();
   await votingCampaign.deployed();
   console.log("Campaign Contract Deployed at", votingCampaign.address);
-  setTimeout(() => run("verify:verify", {
-    address: votingCampaign.address,
-    constructorArguments: []
-  }), 5000);  
+  // setTimeout(() => run("verify:verify", {
+  //   address: votingCampaign.address,
+  //   constructorArguments: []
+  // }), 5000);  
 }
 
 // We recommend this pattern to be able to use async/await everywhere

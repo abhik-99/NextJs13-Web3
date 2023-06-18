@@ -30,17 +30,18 @@ contract VotingCampaign is Ownable, SignatureUtility {
     function createCampaign(
         string calldata _topic,
         string[] memory _options,
-        uint256 _duration,
+        uint _startTime,
+        uint256 _endTime,
         Sign calldata sig
     ) external onlyVerifiedUser(sig) {
-        require(_duration > 0, "Invalid duration");
+        require(_endTime - _startTime > 2 * 24 * 60 * 60, "Invalid duration");
         uint campaignId = ++campaignCount;
         Campaign storage newCampaign = campaignsMapping[campaignId];
 
         newCampaign.topic = _topic;
         newCampaign.options = _options;
-        newCampaign.startTime = block.timestamp;
-        newCampaign.endTime = block.timestamp + _duration;
+        newCampaign.startTime = _startTime;
+        newCampaign.endTime = _endTime;
 
         campaignCreators[campaignId] = _msgSender();
 

@@ -1,7 +1,7 @@
 #  Hardhat Project
 
 This Hardhat project contains the `VotingCampaign` contract. The contract has been deployed and verified at:
-(`0x77bf576ebf897B2E7211aEc0e3DA59223c1e3ac`)[https://mumbai.polygonscan.com/address/0x77bf576ebf897B2E7211aEc0e3DA59223c1e3ac8#code]
+(`0x40c9E869537ae108890f074ec16747b7e66Fa822`)[https://mumbai.polygonscan.com/address/0x40c9E869537ae108890f074ec16747b7e66Fa822#code]
 
 Please note that the contract has not been tested due to time constraint. But in case you want to re-deploy the contract, feel free to follow these steps:
 1. Create your ENV file from the `env.copy` file in the project root (not repo root).

@@ -1,6 +1,8 @@
 "use client";
-import { StyledDrawer } from "../components/StyledDrawer";
-import WagmiContext from "../context/WagmiContext";
+
+import WagmiContext from "@/app/context/WagmiContext";
+import { config } from "@/app/libs/wagmi";
+import { WagmiConfig } from "wagmi";
 
 export const metadata = {
   title: "Sadda Dashboard",
@@ -13,8 +15,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <WagmiContext>
-      <StyledDrawer>{children}</StyledDrawer>
-    </WagmiContext>
+    <WagmiConfig config={config}>
+      {children}
+    </WagmiConfig>
   );
 }

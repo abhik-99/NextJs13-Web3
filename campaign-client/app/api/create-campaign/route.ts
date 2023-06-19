@@ -1,10 +1,6 @@
-import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
 import prisma from "@/app/libs/prismaDb";
 
-import { createPublicClient, http } from "viem";
-import { polygonMumbai } from "viem/chains";
 import getCurrentUser from "@/app/actions/getCurrentUser";
 
 
@@ -26,26 +22,22 @@ export async function POST(req: Request) {
     endDate,
   } = body;
 
-  console.log("Body received", body);
 
-  const publicClient = createPublicClient({
-    chain: polygonMumbai,
-    transport: http(polygonMumbai.rpcUrls.public as unknown as string),
-  });
-
-  await prisma.campaign.create({
+  const campaign = await prisma.campaign.create({
     data: {
-      creatorId: user.id,
-      verified: false,
-      transaction: hash,
+      creator: {
+        connect: {
+          id: user.id
+        }
+      },
+      verifiedCampaign: false,
+      transactionHash: hash,
       startTime: startDate,
       endTime: endDate,
       topic, 
-      options: [option1, option3, option3, option4]
+      options: [option1, option2, option3, option4]
     }
   })
 
-  return NextResponse.json({
-    message: "Watching Transaction",
-  });
+  return NextResponse.json(campaign);
 }

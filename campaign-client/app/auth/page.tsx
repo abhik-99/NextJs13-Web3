@@ -95,14 +95,12 @@ const SignUpPage = () => {
     });
   };
 
+  const handleBackupSignupSign = () => {
+    signSignUpMessage();
+  }
+
   const handleSubmit = (values: any, { setSubmitting }: any, type: string) => {
     setSubmitting(false);
-    console.log("Values", type, {
-      ...values,
-      walletAddress: account,
-      message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
-      signedSignupMessage,
-    });
 
     if (type === "SIGNUP" && hasSignedSuccessfully) {
       axios
@@ -252,6 +250,17 @@ const SignUpPage = () => {
               </StyledButtonClient>
             </>
           )}
+          {
+            isConnected && !hasSignedSuccessfully &&
+            
+            <StyledButtonClient
+              onClick={handleBackupSignupSign}
+              fullWidth
+              color="yellow"
+            >
+              Sign Message to Sign Up
+            </StyledButtonClient>
+          }
           {isConnected && (
             <>
               <h2 className="my-4 text-center text-xl text-gray-400">

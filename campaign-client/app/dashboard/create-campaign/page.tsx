@@ -12,7 +12,7 @@ import { writeContract } from "@wagmi/core";
 import contractAbi from "@/app/blockchain/contract_abi.json";
 import { polygonMumbai } from "viem/chains";
 import { useAccount, useConnect } from "wagmi";
-import { waitForTransaction } from '@wagmi/core'
+import { waitForTransaction } from "@wagmi/core";
 import { InjectedConnector } from "wagmi/connectors/injected";
 
 const CreateNewCampaignPage = () => {
@@ -61,20 +61,20 @@ const CreateNewCampaignPage = () => {
       const data = await waitForTransaction({
         hash,
       });
-      console.log("Transaction data", data)
+
+      toast.loading("Campaign Creation Transaction Submitted");
+      console.log("Transaction data", data);
 
       axios.post("/api/create-campaign", {
         hash,
         ...values,
       });
-
       
-      
+    toast.loading("Please verify campaign after transaction succeeds");
     } catch (error) {
       console.log("Error occured", error);
       toast.error("Something went wrong!");
     }
-
     setSubmitting(false);
   };
   return (

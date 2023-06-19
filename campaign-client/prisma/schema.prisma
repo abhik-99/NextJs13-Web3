@@ -49,7 +49,7 @@ model Campaign {
   updatedAt          DateTime @updatedAt
   creator            User     @relation("Created", fields: [creatorId], references: [id])
   creatorId          String   @db.ObjectId
-  contractCampaignId String?
+  contractCampaignId String?  @unique
   verifiedCampaign   Boolean
   transactionHash    String
   startTime          DateTime

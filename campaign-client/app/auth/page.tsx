@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import StyledButtonClient from "../components/StyledButtonClient";
 import StyledInputClient from "../components/StyledInputClient";
-import { ErrorMessage, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import {
   TabBodyClient,
   TabClient,
@@ -68,22 +68,24 @@ const SignUpPage = () => {
   };
 
   React.useEffect(() => {
-    signIn("credentials", {
-      type: "web3",
-      walletAddress: account,
-      signedMessage: signedLoginMessage,
-      redirect: false,
-    }).then((callback) => {
-      if (callback?.error) {
-        console.log("Callback error", callback.error);
-        toast.error("Incorrect Wallet Credentials");
-      }
+    if (isConnected && hasSignedLoginSuccessfully) {
+      signIn("credentials", {
+        type: "web3",
+        walletAddress: account,
+        signedMessage: signedLoginMessage,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          console.log("Callback error", callback.error);
+          toast.error("Incorrect Wallet Credentials");
+        }
 
-      if (callback?.ok && !callback?.error) {
-        toast.success("Web3 Login Successful");
-        router.push("/dashboard");
-      }
-    });
+        if (callback?.ok && !callback?.error) {
+          toast.success("Web3 Login Successful");
+          router.push("/dashboard");
+        }
+      });
+    }
   }, [hasSignedLoginSuccessfully]);
 
   const handleWeb3Signup = async () => {

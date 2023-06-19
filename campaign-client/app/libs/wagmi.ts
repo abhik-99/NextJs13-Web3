@@ -6,9 +6,9 @@ import { createConfig } from 'wagmi'
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
   [polygonMumbai],
-  [alchemyProvider({ apiKey: process.env.ALCHEMY_API }), publicProvider()],
+  [publicProvider()],
 )
-
+// alchemyProvider({ apiKey: process.env.ALCHEMY_API })
 export const config = createConfig({
   autoConnect: true,
   publicClient,

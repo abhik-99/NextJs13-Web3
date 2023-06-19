@@ -11,29 +11,37 @@ import { writeContract } from "@wagmi/core";
 
 import contractAbi from "@/app/blockchain/contract_abi.json";
 import { polygonMumbai } from "viem/chains";
-import { useAccount } from "wagmi";
+import { useAccount, useConnect } from "wagmi";
+import { waitForTransaction } from '@wagmi/core'
+import { InjectedConnector } from "wagmi/connectors/injected";
 
 const CreateNewCampaignPage = () => {
   const { address, isConnected } = useAccount();
+  const { connect } = useConnect({
+    connector: new InjectedConnector({
+      chains: [polygonMumbai],
+    }),
+  });
   console.log("Address and connection?", address, isConnected);
+
   const handleCampaignCreation = async (
     values: FormikValues,
     { setSubmitting }: any
   ) => {
     try {
+      if (!isConnected) {
+        connect();
+      }
       const {
         data: { signedMessage, eat, nonce },
-      } = await axios.post("/api/create-campaign", {
-        ...values,
-        startDate: values.startDate.valueOf() / 1000,
-        endDate: values.startDate.valueOf() / 1000,
-      });
+      } = await axios.get("/api/sig-token");
+
       console.log("Values to use for campaign creation", [
         values.topic,
         [values.option1, values.option2, values.option3, values.option4],
-        values.startDate.valueOf() / 1000,
-        values.endDate.valueOf() / 1000,
-        { signature: signedMessage, eat: eat, nonce: nonce },
+        BigInt(Math.trunc(values.startDate.valueOf() / 1000)),
+        BigInt(Math.trunc(values.endDate.valueOf() / 1000)),
+        { signature: signedMessage, eat: BigInt(eat), nonce: nonce },
       ]);
 
       const { hash } = await writeContract({
@@ -43,13 +51,25 @@ const CreateNewCampaignPage = () => {
         args: [
           values.topic,
           [values.option1, values.option2, values.option3, values.option4],
-          values.startDate.valueOf() / 1000,
-          values.endDate.valueOf() / 1000,
-          { signature: signedMessage, eat: eat, nonce: nonce },
+          BigInt(Math.trunc(values.startDate.valueOf() / 1000)),
+          BigInt(Math.trunc(values.endDate.valueOf() / 1000)),
+          { signature: signedMessage, eat: BigInt(eat), nonce: nonce },
         ],
         chainId: polygonMumbai.id,
       });
-      console.log("Hash of the transaction", hash);
+      console.log("Hash of the transaction (watching)", hash);
+      const data = await waitForTransaction({
+        hash,
+      });
+      console.log("Transaction data", data)
+
+      axios.post("/api/create-campaign", {
+        hash,
+        ...values,
+      });
+
+      
+      
     } catch (error) {
       console.log("Error occured", error);
       toast.error("Something went wrong!");
@@ -102,9 +122,9 @@ const CreateNewCampaignPage = () => {
             }
             if (
               values.endDate.valueOf() <
-              values.startDate.valueOf() + 2 * 24 * 60 * 60 * 1000
+              values.startDate.valueOf() + 3 * 24 * 60 * 60 * 1000
             ) {
-              errors.endDate = "Campaign should take 2 days min";
+              errors.endDate = "Campaign should last more than 3 days";
             }
             return errors;
           }}

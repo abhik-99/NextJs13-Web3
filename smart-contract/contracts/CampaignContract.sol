@@ -34,7 +34,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
         uint256 _endTime,
         Sign calldata sig
     ) external onlyVerifiedUser(sig) {
-        require(_endTime - _startTime > 2 * 24 * 60 * 60, "Invalid duration");
+        require(_endTime - _startTime >= 2 * 24 * 60 * 60, "Invalid duration");
         uint campaignId = ++campaignCount;
         Campaign storage newCampaign = campaignsMapping[campaignId];
 

@@ -10,7 +10,7 @@ type VerifyButtonClientProps = {
 const VerifyButtonClient = async ({campaignId} : VerifyButtonClientProps) => {
   const {data:session} = useSession();
   const handleVerification = async () => {
-    const response = await axios.patch('/api/verify-campaign', {
+    const response = await axios.patch('/api/campaign/verify', {
       email: session?.user?.email,
       campaignId: campaignId
     });

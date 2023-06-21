@@ -65,9 +65,6 @@ const SignUpPage = () => {
 
   const handleWeb3Login = () => {
     signLoginMessage();
-  };
-
-  React.useEffect(() => {
     if (isConnected && hasSignedLoginSuccessfully) {
       signIn("credentials", {
         type: "web3",
@@ -86,7 +83,7 @@ const SignUpPage = () => {
         }
       });
     }
-  }, [hasSignedLoginSuccessfully]);
+  };
 
   const handleWeb3Signup = async () => {
     connectAsync().then(() => {

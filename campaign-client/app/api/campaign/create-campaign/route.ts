@@ -39,5 +39,5 @@ export async function POST(req: Request) {
     }
   })
 
-  return NextResponse.json(campaign);
+  return NextResponse.json({message:"Successfully created campaign",campaign});
 }

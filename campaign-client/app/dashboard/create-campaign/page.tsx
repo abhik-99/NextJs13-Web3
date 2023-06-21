@@ -65,7 +65,7 @@ const CreateNewCampaignPage = () => {
       toast.loading("Campaign Creation Transaction Submitted");
       console.log("Transaction data", data);
 
-      axios.post("/api/create-campaign", {
+      axios.post("/api/campaign/create-campaign", {
         hash,
         ...values,
       });

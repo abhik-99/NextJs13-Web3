@@ -45,7 +45,7 @@ const CreateNewCampaignPage = () => {
       ]);
 
       const { hash } = await writeContract({
-        address: `0x${process.env.NEXT_PUBLIC_CONTRACT_ADDRESS}`,
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
         abi: contractAbi,
         functionName: "createCampaign",
         args: [

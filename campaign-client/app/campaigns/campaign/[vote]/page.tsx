@@ -3,16 +3,59 @@ import StyledButtonClient from "@/app/components/StyledButtonClient";
 import ProgressBarClient from "@/app/components/ProgressBarClient";
 import StyledRadioOptionClient from "@/app/components/StyledRadioClient";
 import { ErrorMessage, Form, Formik } from "formik";
-import Link from "next/link";
 import React from "react";
 import { useRouter } from "next/navigation";
+import axios from "axios";
+import { toast } from "react-hot-toast";
 
-const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
+type Campaign = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  creator: {
+    name: string;
+    walletAddress: string;
+  };
+  creatorId: string;
+  contractCampaignId: string;
+  verifiedCampaign: boolean;
+  transactionHash: string;
+  startTime: string;
+  endTime: string;
+  topic: string;
+  options: string[];
+  votes: {
+    option: string;
+    createdAt: string;
+    voter: {
+      name: string;
+      walletAddress: string;
+    };
+  }[];
+};
+
+const VoteInCampaignPage = ({
+  params: { vote },
+}: {
+  params: { vote: string };
+}) => {
   const router = useRouter();
   const [submitted, setSubmitted] = React.useState(false);
+  const [campaign, setCampaign] = React.useState<Campaign>();
+
+  React.useEffect(() => {
+    async function fetchCampaign() {
+      const response = await axios.get(`/api/campaign/${vote}`);
+      if (response.status !== 200) {
+        toast.error("Something went wrong");
+      }
+      setCampaign(response.data);
+    }
+    fetchCampaign();
+  }, []);
   const handlePrev = () => {
-    router.back()
-  }
+    router.back();
+  };
   return (
     <div>
       <h1
@@ -33,15 +76,54 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
       </nav>
       <main className="m-2 min-w-full border border-gray-500 rounded-lg">
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-          <div className="h-full w-full p-2 md:p-10 lg:p-15 flex flex-col items-start justify-center text-gray-300">
+          <div className="h-full w-full p-2 md:p-10 lg:p-15 flex flex-col items-start justify-center text-gray-300 font-semibold">
             <h2 className="my-5 text-3xl font-bold tracking-tight">
               Campaign Details
             </h2>
-            <p>Created By:</p>
-            <p>Wallet Address:</p>
-            <p>Created At:</p>
-            <p>Start Time:</p>
-            <p>End Time: </p>
+            <p>
+              Created By:{" "}
+              <span className="text-gray-50 font-normal">
+                {campaign?.creator?.name}
+              </span>
+            </p>
+            <p>
+              Wallet Address:{" "}
+              <span className="text-gray-50 font-normal">{`${campaign?.creator.walletAddress.slice(
+                0,
+                5
+              )}...${campaign?.creator.walletAddress.slice(
+                campaign?.creator.walletAddress.length - 5,
+                campaign?.creator.walletAddress.length
+              )}`}</span>
+            </p>
+            <p>
+              Created At:{" "}
+              <span className="text-gray-50 font-normal">
+                {campaign?.createdAt}
+              </span>
+            </p>
+            <p>
+              Creation Hash:{" "}
+              <span className="text-gray-50 font-normal">{`${campaign?.transactionHash.slice(
+                0,
+                5
+              )}...${campaign?.transactionHash.slice(
+                campaign?.transactionHash.length - 5,
+                campaign?.transactionHash.length
+              )}`}</span>
+            </p>
+            <p>
+              Start Time:{" "}
+              <span className="text-gray-50 font-normal">
+                {campaign?.startTime}
+              </span>
+            </p>
+            <p>
+              End Time:{" "}
+              <span className="text-gray-50 font-normal">
+                {campaign?.endTime}
+              </span>
+            </p>
           </div>
           <div className="h-full w-full p-2 md:p-10 lg:p-15 flex flex-col items-start justify-center bg-gray-800">
             {submitted && (
@@ -76,8 +158,8 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
                   console.log("Picked", values);
                 }}
                 validate={(values) => {
-                  if(values.picked === "")
-                  return {picked: "*Please Select one option"}
+                  if (values.picked === "")
+                    return { picked: "*Please Select one option" };
                 }}
               >
                 {({ isSubmitting }) => (
@@ -105,7 +187,11 @@ const VoteInCampaignPage = ({ params }: { params: { vote: string } }) => {
                     <StyledButtonClient type="submit" disabled={isSubmitting}>
                       Submit
                     </StyledButtonClient>
-                    <ErrorMessage name="picked" component="div" className="mt-4"/>
+                    <ErrorMessage
+                      name="picked"
+                      component="div"
+                      className="mt-4"
+                    />
                   </Form>
                 )}
               </Formik>

@@ -26,7 +26,7 @@ const PastCampaignsPage = async () => {
       </nav>
       <main className="mt-10 px-2 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {campaigns.map((campaign) => (
-          <CampaignCards link={`/campaigns/campaign/${campaign.id}`}>
+          <CampaignCards link={`/campaigns/campaign/${campaign.contractCampaignId}`}>
             <h4
               className="ml-6 text-2xl 
             font-bold 

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
   if (signer !== walletAddress) {
     throw new Error("Invalid Signature");
   }
-  const hashedPassword = await bcrypt.hash(password, 12);
+  var hashedPassword = await bcrypt.hash(password, 12);
 
   const user = await prisma.user.create({
     data: {
@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       signedSignupMessage,
     },
   });
+  var {hashedPassword, ...newUser} = user;
 
-  return NextResponse.json({message:"Successfully Created User", user});
+  return NextResponse.json({message:"Successfully Created User", newUser});
 }

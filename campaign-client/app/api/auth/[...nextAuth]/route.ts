@@ -72,8 +72,9 @@ export const authOptions: AuthOptions = {
           if (signer !== credentials.walletAddress) {
             throw new Error("Invalid Signature");
           }
+          const {hashedPassword, ...otherResults} = user;
 
-          return user;
+          return {...otherResults};
         }
       },
     }),

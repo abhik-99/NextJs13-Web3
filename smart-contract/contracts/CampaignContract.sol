@@ -42,6 +42,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
         newCampaign.options = _options;
         newCampaign.startTime = _startTime;
         newCampaign.endTime = _endTime;
+        newCampaign.creator = _msgSender();
 
         campaignCreators[campaignId] = _msgSender();
 

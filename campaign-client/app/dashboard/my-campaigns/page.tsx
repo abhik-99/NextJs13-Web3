@@ -1,8 +1,74 @@
 import getUserCampaigns from "@/app/actions/getUserCampaigns";
 import CampaignCards from "@/app/components/CampaignCards";
 import VerifyButtonClient from "@/app/components/VerifyButtonClient";
+import prisma from "@/app/libs/prismaDb";
+import axios from "axios";
 import Link from "next/link";
 import React from "react";
+import toast from "react-hot-toast";
+import {
+  createPublicClient,
+  decodeEventLog,
+  getEventSelector,
+  http,
+} from "viem";
+import { polygonMumbai } from "viem/chains";
+import contractAbi from "@/app/blockchain/contract_abi.json";
+import { revalidatePath } from "next/cache";
+
+export async function verifyCampaign(campaignId: string) {
+  "use server";
+  try {
+
+    var campaign = await prisma.campaign.findUnique({
+      where: { id: campaignId },
+    });
+  
+    if (!campaign) {
+      throw new Error("No such campaigns found");
+    }
+    const publicClient = createPublicClient({
+      chain: polygonMumbai,
+      transport: http(polygonMumbai.rpcUrls.public.http[0]),
+    });
+  
+    const transaction = await publicClient.getTransactionReceipt({
+      hash: campaign.transactionHash as `0x${string}`,
+    });
+  
+    if (transaction.status === "success") {
+      const eventLog = transaction.logs.filter(
+        (log) =>
+          log.topics[0] ===
+          getEventSelector(`CampaignCreated(uint256 indexed, string, address)`)
+      )[0];
+      const contractCampaignArgs: {
+        campaignId?: BigInt;
+        topic?: string;
+        creator?: string;
+      } = decodeEventLog({
+        abi: contractAbi,
+        topics: eventLog.topics,
+        data: eventLog.data,
+      }).args;
+      campaign = await prisma.campaign.update({
+        where: {
+          id: campaign.id,
+        },
+        data: {
+          verifiedCampaign: true,
+          contractCampaignId: contractCampaignArgs.campaignId?.toString(),
+        },
+      });
+      toast.success("Campaign verified successfully");
+      revalidatePath("/dashboard/my-campaigns");
+    }
+    
+  } catch(e) {
+    console.log("Error Occurred while verifying", e);
+    toast.error("Something went wrong");
+  }
+}
 
 const UserCampaignsPage = async () => {
   const user = await getUserCampaigns();
@@ -69,7 +135,7 @@ const UserCampaignsPage = async () => {
                 </div>
               </CampaignCards>
               {!campaign.verifiedCampaign && (
-                <VerifyButtonClient campaignId={campaign.id}/>
+                <VerifyButtonClient verifyCampaignServerAction={() => verifyCampaign(campaign.id)}/>
               )}
             </div>
           ))}

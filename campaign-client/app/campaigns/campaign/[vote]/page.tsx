@@ -7,6 +7,7 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "react-hot-toast";
+import useSWR from "swr";
 
 type Campaign = {
   id: string;
@@ -42,31 +43,43 @@ const VoteInCampaignPage = ({
   const router = useRouter();
   const [submitted, setSubmitted] = React.useState(false);
   const [campaign, setCampaign] = React.useState<Campaign>();
-
   React.useEffect(() => {
     async function fetchCampaign() {
-      const response = await axios.get(`/api/campaign/${vote}`);
-      if (response.status !== 200) {
+      try {
+        const response = await fetch(`/api/campaign/${vote}`);
+        const campaign = await response.json();
+        setCampaign(campaign);
+      } catch (e) {
+        console.log("Error occured", e);
         toast.error("Something went wrong");
       }
-      setCampaign(response.data);
     }
     fetchCampaign();
   }, []);
+
+  async function fetchCampaignVotes() {
+    const response = await fetch(`/api/campaign/votes/${vote}`, {
+      next: { revalidate: 5 },
+    });
+    const campaignVotes = await response.json();
+    return campaignVotes;
+  }
+
+  const { data, isLoading } = useSWR(
+    `/api/campaign/votes/${vote}`,
+    fetchCampaignVotes,
+    { refreshInterval: 10000 }
+  );
+
+  console.log("Data received", data);
+
   const handlePrev = () => {
     router.back();
   };
+
   return (
     <div>
-      <h1
-        className="
-        my-10 
-            text-center 
-            text-6xl 
-            font-bold 
-            tracking-tight 
-            text-gray-500"
-      >
+      <h1 className="my-10 text-center text-6xl font-bold tracking-tight text-gray-500">
         Campaign
       </h1>
       <nav className="m-2 text-gray-400 hover:text-gray-200">
@@ -199,6 +212,7 @@ const VoteInCampaignPage = ({
           </div>
         </div>
       </main>
+      <div></div>
     </div>
   );
 };

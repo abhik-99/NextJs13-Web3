@@ -49,7 +49,9 @@ model Campaign {
   updatedAt          DateTime @updatedAt
   creator            User     @relation("Created", fields: [creatorId], references: [id])
   creatorId          String   @db.ObjectId
-  contractCampaignId String
+  contractCampaignId String?  @unique
+  verifiedCampaign   Boolean
+  transactionHash    String
   startTime          DateTime
   endTime            DateTime
   topic              String
@@ -63,7 +65,7 @@ model Votes {
   updatedAt  DateTime @updatedAt
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String   @db.ObjectId
-  option     String
+  option     Int
   voter      User     @relation(fields: [voterId], references: [id])
   voterId    String   @db.ObjectId
 }

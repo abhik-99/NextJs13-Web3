@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import StyledButtonClient from "../components/StyledButtonClient";
 import StyledInputClient from "../components/StyledInputClient";
-import { ErrorMessage, Form, Formik } from "formik";
+import { Form, Formik } from "formik";
 import {
   TabBodyClient,
   TabClient,
@@ -65,26 +65,25 @@ const SignUpPage = () => {
 
   const handleWeb3Login = () => {
     signLoginMessage();
+    if (isConnected && hasSignedLoginSuccessfully) {
+      signIn("credentials", {
+        type: "web3",
+        walletAddress: account,
+        signedMessage: signedLoginMessage,
+        redirect: false,
+      }).then((callback) => {
+        if (callback?.error) {
+          console.log("Callback error", callback.error);
+          toast.error("Incorrect Wallet Credentials");
+        }
+
+        if (callback?.ok && !callback?.error) {
+          toast.success("Web3 Login Successful");
+          router.push("/dashboard");
+        }
+      });
+    }
   };
-
-  React.useEffect(() => {
-    signIn("credentials", {
-      type: "web3",
-      walletAddress: account,
-      signedMessage: signedLoginMessage,
-      redirect: false,
-    }).then((callback) => {
-      if (callback?.error) {
-        console.log("Callback error", callback.error);
-        toast.error("Incorrect Wallet Credentials");
-      }
-
-      if (callback?.ok && !callback?.error) {
-        toast.success("Web3 Login Successful");
-        router.push("/dashboard");
-      }
-    });
-  }, [hasSignedLoginSuccessfully]);
 
   const handleWeb3Signup = async () => {
     connectAsync().then(() => {
@@ -93,14 +92,12 @@ const SignUpPage = () => {
     });
   };
 
+  const handleBackupSignupSign = () => {
+    signSignUpMessage();
+  }
+
   const handleSubmit = (values: any, { setSubmitting }: any, type: string) => {
     setSubmitting(false);
-    console.log("Values", type, {
-      ...values,
-      walletAddress: account,
-      message: process.env.NEXT_PUBLIC_SIGNUP_MESSAGE,
-      signedSignupMessage,
-    });
 
     if (type === "SIGNUP" && hasSignedSuccessfully) {
       axios
@@ -250,6 +247,17 @@ const SignUpPage = () => {
               </StyledButtonClient>
             </>
           )}
+          {
+            isConnected && !hasSignedSuccessfully &&
+            
+            <StyledButtonClient
+              onClick={handleBackupSignupSign}
+              fullWidth
+              color="yellow"
+            >
+              Sign Message to Sign Up
+            </StyledButtonClient>
+          }
           {isConnected && (
             <>
               <h2 className="my-4 text-center text-xl text-gray-400">

@@ -25,7 +25,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
         string topic,
         address creator
     );
-    event VoteCast(uint256 indexed campaignId, string option, address voter);
+    event VoteCast(uint256 indexed campaignId, uint8 option, address voter);
 
     function createCampaign(
         string calldata _topic,
@@ -68,7 +68,8 @@ contract VotingCampaign is Ownable, SignatureUtility {
         );
 
         bool optionFound = false;
-        for (uint256 i = 0; i < campaign.options.length; i++) {
+        uint8 i = 0;
+        for (; i < campaign.options.length; i++) {
             if (
                 keccak256(bytes(campaign.options[i])) ==
                 keccak256(bytes(_option))
@@ -83,7 +84,7 @@ contract VotingCampaign is Ownable, SignatureUtility {
 
         campaign.hasVoted[_msgSender()] = true;
 
-        emit VoteCast(_campaignId, _option, _msgSender());
+        emit VoteCast(_campaignId, i + 1, _msgSender());
     }
 
     function getVoteCount(
@@ -96,5 +97,10 @@ contract VotingCampaign is Ownable, SignatureUtility {
         require(block.timestamp > campaign.endTime, "Voting is still active");
 
         return campaign.votes[_option];
+    }
+
+    function hasVoted(
+        uint256 _campaignId, address _addr) view external returns (bool){
+            return campaignsMapping[_campaignId].hasVoted[_addr];
     }
 }

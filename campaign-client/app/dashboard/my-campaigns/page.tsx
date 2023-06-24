@@ -2,7 +2,6 @@ import getUserCampaigns from "@/app/actions/getUserCampaigns";
 import CampaignCards from "@/app/components/CampaignCards";
 import VerifyButtonClient from "@/app/components/VerifyButtonClient";
 import prisma from "@/app/libs/prismaDb";
-import axios from "axios";
 import Link from "next/link";
 import React from "react";
 import toast from "react-hot-toast";

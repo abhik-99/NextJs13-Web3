@@ -2,12 +2,17 @@
 import StyledButtonClient from "@/app/components/StyledButtonClient";
 import ProgressBarClient from "@/app/components/ProgressBarClient";
 import StyledRadioOptionClient from "@/app/components/StyledRadioClient";
+import contractAbi from "@/app/blockchain/contract_abi.json";
 import { ErrorMessage, Form, Formik } from "formik";
 import React from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { toast } from "react-hot-toast";
 import useSWR from "swr";
+import { useAccount, useConnect, usePublicClient } from "wagmi";
+import { writeContract } from "@wagmi/core";
+import axios from "axios";
+import { polygonMumbai } from "viem/chains";
+import StyledInputClient from "@/app/components/StyledInputClient";
 
 type Campaign = {
   id: string;
@@ -35,13 +40,24 @@ type Campaign = {
   }[];
 };
 
+type Vote = Partial<{
+  id?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  option?: number;
+}>;
+
 const VoteInCampaignPage = ({
   params: { vote },
 }: {
   params: { vote: string };
 }) => {
+  const { address, isConnected } = useAccount();
+  const { connect } = useConnect();
+  const publicClient = usePublicClient({ chainId: polygonMumbai.id });
   const router = useRouter();
   const [submitted, setSubmitted] = React.useState(false);
+  const [snapshotted, setSnapshotted] = React.useState(false);
   const [campaign, setCampaign] = React.useState<Campaign>();
   React.useEffect(() => {
     async function fetchCampaign() {
@@ -57,6 +73,23 @@ const VoteInCampaignPage = ({
     fetchCampaign();
   }, []);
 
+  React.useEffect(() => {
+    async function fetchUserVote() {
+      try {
+        const response = await fetch(
+          `/api/vote?campaignId=${vote}&walletAddress=${address}`
+        );
+        const campaign = await response.json();
+        if (campaign.voted && !campaign.snapshotted) setSubmitted(true);
+        if (campaign.voted && campaign.snapshotted) setSnapshotted(false);
+      } catch (e) {
+        console.log("Error occured", e);
+        toast.error("Something went wrong");
+      }
+    }
+    fetchUserVote();
+  }, []);
+
   async function fetchCampaignVotes() {
     const response = await fetch(`/api/campaign/votes/${vote}`, {
       next: { revalidate: 5 },
@@ -65,7 +98,7 @@ const VoteInCampaignPage = ({
     return campaignVotes;
   }
 
-  const { data, isLoading } = useSWR(
+  const { data }: { data: Vote[] } = useSWR(
     `/api/campaign/votes/${vote}`,
     fetchCampaignVotes,
     { refreshInterval: 10000 }
@@ -75,6 +108,51 @@ const VoteInCampaignPage = ({
 
   const handlePrev = () => {
     router.back();
+  };
+
+  const handleVote = async (values: { picked: string }) => {
+    try {
+      if (!isConnected) connect();
+
+      const {
+        data: { signedMessage, eat, nonce },
+      } = await axios.get("/api/sig-token");
+      const { hash } = await writeContract({
+        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
+        abi: contractAbi,
+        functionName: "vote",
+        args: [
+          vote,
+          values.picked,
+          { signature: signedMessage, eat: BigInt(eat), nonce: nonce },
+        ],
+      });
+      toast.loading(
+        `Submitted Vote to Contract. Trn Hash: ${hash.slice(0, 10)}...`
+      );
+      const receipt = await publicClient.waitForTransactionReceipt({
+        hash,
+      });
+      if (receipt.status === "success") {
+        const vote = await axios.post("/api/vote", { hash });
+        toast.success("Vote Casted");
+        setSubmitted(true);
+        if (vote.status === 200 && vote.data.vote?.id) setSnapshotted(true);
+      } else {
+        toast.error("Transaction reverted!");
+      }
+    } catch (error) {
+      console.log("Error Occured", error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const handleSnapshot = async (values: { hash: string }) => {
+    const vote = await axios.post("/api/vote", { hash: values.hash });
+    if (vote.status === 200 && vote.data.vote?.id) {
+      setSnapshotted(true);
+      toast.success("Vote Snapshotted successfully");
+    }
   };
 
   return (
@@ -139,37 +217,43 @@ const VoteInCampaignPage = ({
             </p>
           </div>
           <div className="h-full w-full p-2 md:p-10 lg:p-15 flex flex-col items-start justify-center bg-gray-800">
-            {submitted && (
-              <>
-                <h2 className="my-5 text-3xl font-bold tracking-tight text-gray-300">
-                  Campaign <span className="text-cyan-200">Standings</span>
-                </h2>
-                <h3
-                  className="my-5 text-2xl font-bold tracking-tight text-gray-300"
-                  id="campaign-radio-group"
-                >
-                  Topic Here
-                </h3>
-                {[1, 2, 3, 4].map((i) => (
-                  <ProgressBarClient
-                    label={`Option ${i}`}
-                    value={25 * i}
-                    maxValue={100}
-                  />
-                ))}
-              </>
+            {submitted && snapshotted && (
+              <div className="text-gray-200">
+                <h2 className="text-2xl font-bold">Thank You!</h2>
+                <p>You have already Voted.</p>
+              </div>
             )}
-
+            {submitted && !snapshotted && (
+              <div className="text-gray-200">
+                <h2 className="text-2xl font-bold">Vote Not Snapshotted!</h2>
+                <p>
+                  You have already Voted but your vote has not been snapshotted.
+                </p>
+                <p>Enter transaction hash below and submit.</p>
+                <Formik
+                  initialValues={{
+                    hash: "",
+                  }}
+                  onSubmit={handleSnapshot}
+                  validate={(values) => {
+                    if (values.hash.length === 0)
+                      return { picked: "*Enter a valid hash" };
+                  }}
+                >
+                  <StyledInputClient
+                    name="hash"
+                    placeholder="Enter Transaction Hash..."
+                  />
+                  <StyledButtonClient>Submit</StyledButtonClient>
+                </Formik>
+              </div>
+            )}
             {!submitted && (
               <Formik
                 initialValues={{
                   picked: "",
                 }}
-                onSubmit={async (values) => {
-                  await new Promise((r) => setTimeout(r, 500));
-                  setSubmitted(true);
-                  console.log("Picked", values);
-                }}
+                onSubmit={handleVote}
                 validate={(values) => {
                   if (values.picked === "")
                     return { picked: "*Please Select one option" };
@@ -188,10 +272,10 @@ const VoteInCampaignPage = ({
                       aria-labelledby="campaign-radio-group"
                       className="block my-6"
                     >
-                      {[1, 2, 3, 4].map((i) => (
+                      {campaign?.options.map((option, i) => (
                         <StyledRadioOptionClient
                           name="picked"
-                          value={i.toString()}
+                          value={option}
                           label={`Option ${i}`}
                         />
                       ))}
@@ -212,7 +296,31 @@ const VoteInCampaignPage = ({
           </div>
         </div>
       </main>
-      <div></div>
+      <div className="min-w-full text-gray-400 py-5">
+        <h2 className="my-6 text-4xl font-bold tracking-tight">
+          Campaign <span className="text-cyan-200">Standings</span>
+        </h2>
+        <div>
+          <h3 className="text-2xl">
+            Total Votes:{" "}
+            <span className="font-bold text-gray-300">{data?.length}</span>
+          </h3>
+          {campaign?.options.map((option, idx) => (
+            <>
+              <h4 className="text-lg font-bold mt-10">
+                Option {idx + 1}:{" "}
+                <span className="text-gray-300">
+                  {data.filter((vote) => vote.option === idx + 1).length}
+                </span>
+              </h4>
+              <ProgressBarClient value={25 * idx} maxValue={100} />
+              <p className="text-sm text-gray-400">
+                <span className="font-bold">Details:</span> {option}
+              </p>
+            </>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };

@@ -65,7 +65,7 @@ model Votes {
   updatedAt  DateTime @updatedAt
   campaign   Campaign @relation(fields: [campaignId], references: [id])
   campaignId String   @db.ObjectId
-  option     String
+  option     Int
   voter      User     @relation(fields: [voterId], references: [id])
   voterId    String   @db.ObjectId
 }
